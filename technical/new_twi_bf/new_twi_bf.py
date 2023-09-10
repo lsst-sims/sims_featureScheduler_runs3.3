@@ -33,6 +33,8 @@ from rubin_sim.utils import _hpid2_ra_dec
 
 # So things don't fail on hyak
 iers.conf.auto_download = False
+# XXX--note this line probably shouldn't be in production
+iers.conf.auto_max_age = None
 
 
 class TwilightTimeBasisFunction(bf.BaseBasisFunction):
