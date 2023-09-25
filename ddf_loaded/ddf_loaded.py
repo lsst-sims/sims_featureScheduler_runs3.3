@@ -1455,7 +1455,7 @@ def main(args):
         fileroot = os.path.basename(sys.argv[0]).replace(".py", "") + "_"
     else:
         fileroot = dbroot + "_"
-    file_end = "fl%i_v3.2_" % ddf_flush_length
+    file_end = "fl%i_v3.3_" % ddf_flush_length
 
     pattern_dict = {
         1: [True],
