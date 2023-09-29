@@ -27,7 +27,10 @@ from rubin_sim.scheduler.surveys import (
 from rubin_sim.scheduler.utils import (
     ConstantFootprint,
     EuclidOverlapFootprint,
-    make_rolling_footprints,
+    Footprints,
+    Footprint,
+    StepSlopes,
+    slice_quad_galactic_cut,
 )
 from rubin_sim.utils import _hpid2_ra_dec
 
@@ -35,6 +38,116 @@ from rubin_sim.utils import _hpid2_ra_dec
 iers.conf.auto_download = False
 # XXX--note this line probably shouldn't be in production
 iers.conf.auto_max_age = None
+
+
+def make_rolling_footprints(
+    fp_hp=None,
+    mjd_start=60218.0,
+    sun_ra_start=3.27717639,
+    nslice=2,
+    scale=0.8,
+    nside=32,
+    wfd_indx=None,
+    order_roll=0,
+    n_cycles=None,
+    n_constant_start=3,
+    n_constant_end=20,
+    insert_const=None,
+):
+    """
+    Generate rolling footprints
+
+    Parameters
+    ----------
+    fp_hp : dict-like
+        A dict with filtername keys and HEALpix map values
+    mjd_start : float
+        The starting date of the survey.
+    sun_ra_start : float
+        The RA of the sun at the start of the survey
+    nslice : int (2)
+        How much to slice the sky up. Can be 2, 3, 4, or 6.
+    scale : float (0.8)
+        The strength of the rolling, value of 1 is full power rolling, zero is no rolling.
+    wfd_indx : array of ints (none)
+        The indices of the HEALpix map that are to be included in the rolling.
+    order_roll : int (0)
+        Change the order of when bands roll. Default 0.
+    n_cycles : int (None)
+        Number of complete rolling cycles to attempt. If None, defaults to 3
+        full cycles for nslice=2, 2 cycles for nslice=3 or 4, and 1 cycle for
+        nslice=6.
+    n_constant_start : int (3)
+        The number of constant non-rolling seasons to start with. Anything less
+        than 3 results in rolling starting before the entire sky has had a constant year.
+    n_constant_end : int (6)
+        The number of constant seasons to end the survey with. Defaults to 6.
+
+    Returns
+    -------
+    Footprints object
+    """
+
+    nc_default = {2: 3, 3: 2, 4: 2, 6: 1}
+    if n_cycles is None:
+        n_cycles = nc_default[nslice]
+
+    hp_footprints = fp_hp
+
+    down = 1.0 - scale
+    up = nslice - down * (nslice - 1)
+
+    start = [1.0] * n_constant_start
+    # After n_cycles, just go to no-rolling for 6 years.
+    end = [1.0] * n_constant_end
+
+    rolling = [up] + [down] * (nslice - 1)
+    rolling = rolling * n_cycles
+
+    rolling = np.roll(rolling, order_roll).tolist()
+
+    if insert_const is not None:
+        rolling.insert(insert_const, 1)
+
+    all_slopes = [start + np.roll(rolling, i).tolist() + end for i in range(nslice)]
+    fp_non_wfd = Footprint(mjd_start, sun_ra_start=sun_ra_start, nside=nside)
+    rolling_footprints = []
+    for i in range(nslice):
+        step_func = StepSlopes(rise=all_slopes[i])
+        rolling_footprints.append(
+            Footprint(mjd_start, sun_ra_start=sun_ra_start, step_func=step_func, nside=nside)
+        )
+
+    wfd = hp_footprints["r"] * 0
+    if wfd_indx is None:
+        wfd_indx = np.where(hp_footprints["r"] == 1)[0]
+        non_wfd_indx = np.where(hp_footprints["r"] != 1)[0]
+
+    wfd[wfd_indx] = 1
+    non_wfd_indx = np.where(wfd == 0)[0]
+
+    split_wfd_indices = slice_quad_galactic_cut(hp_footprints, nslice=nslice, wfd_indx=wfd_indx)
+
+    for key in hp_footprints:
+        temp = hp_footprints[key] + 0
+        temp[wfd_indx] = 0
+        fp_non_wfd.set_footprint(key, temp)
+
+        for i in range(nslice):
+            # make a copy of the current filter
+            temp = hp_footprints[key] + 0
+            # Set the non-rolling area to zero
+            temp[non_wfd_indx] = 0
+
+            indx = split_wfd_indices[i]
+            # invert the indices
+            ze = temp * 0
+            ze[indx] = 1
+            temp = temp * ze
+            rolling_footprints[i].set_footprint(key, temp)
+
+    result = Footprints([fp_non_wfd] + rolling_footprints)
+    return result
 
 
 def standard_bf(
@@ -1424,6 +1537,12 @@ def main(args):
     observatory = ModelObservatory(nside=nside, mjd_start=mjd_start)
     conditions = observatory.return_conditions()
 
+    if rolling_ncycles > 4:
+        # make sure there's a constant season around year 10.
+        insert_const = 6  
+    else:
+        insert_const = None
+
     footprints = make_rolling_footprints(
         fp_hp=footprints_hp,
         mjd_start=conditions.mjd_start,
@@ -1434,6 +1553,7 @@ def main(args):
         wfd_indx=wfd_indx,
         order_roll=1,
         n_cycles=rolling_ncycles,
+        insert_const=insert_const,
     )
 
     gaps_night_pattern = [True] + [False] * nights_off
