@@ -22,7 +22,6 @@ from rubin_sim.scheduler.surveys import (
     GreedySurvey,
     LongGapSurvey,
     ScriptedSurvey,
-    generate_ddf_scheduled_obs,
 )
 from rubin_sim.scheduler.utils import (
     ConstantFootprint,
@@ -33,6 +32,7 @@ from rubin_sim.scheduler.utils import (
     slice_quad_galactic_cut,
 )
 from rubin_sim.utils import _hpid2_ra_dec
+from ddf_presched import generate_ddf_scheduled_obs
 
 # So things don't fail on hyak
 iers.conf.auto_download = False
