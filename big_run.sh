@@ -1,0 +1,40 @@
+python baseline/baseline.py --outDir baseline
+python ddf_loaded/ddf_loaded.py --outDir ddf_loaded --ddf_flush_length 1
+python ddf_loaded/ddf_loaded.py --outDir ddf_loaded --ddf_flush_length 2
+python ddf_loaded/ddf_loaded.py --outDir ddf_loaded --ddf_flush_length 4
+python ddf_loaded/ddf_loaded.py --outDir ddf_loaded --ddf_flush_length 8
+python ddf_loaded/ddf_loaded.py --outDir ddf_loaded --ddf_flush_length 15
+python ddf_loaded_half/ddf_loaded_half.py --outDir ddf_loaded_half --ddf_flush_length 1
+python ddf_loaded_half/ddf_loaded_half.py --outDir ddf_loaded_half --ddf_flush_length 2
+python ddf_loaded_half/ddf_loaded_half.py --outDir ddf_loaded_half --ddf_flush_length 4
+python ddf_loaded_half/ddf_loaded_half.py --outDir ddf_loaded_half --ddf_flush_length 8
+python ddf_loaded_half/ddf_loaded_half.py --outDir ddf_loaded_half --ddf_flush_length 15
+python ddf_loaded_half/ddf_half.py --outDir ddf_loaded_half 
+python roll_mid/roll_mid1.py  --outDir roll_mid --insert_const 2
+python roll_mid/roll_mid1.py  --outDir roll_mid --insert_const 4
+python roll_mid/roll_mid1.py  --outDir roll_mid --insert_const 6
+python roll_mid/roll_mid2.py  --outDir roll_mid --insert_const 2
+python roll_mid/roll_mid2.py  --outDir roll_mid --insert_const 4
+python roll_mid/roll_mid2.py  --outDir roll_mid --insert_const 6
+python roll_mid/noroll.py --outDir roll_mid 
+python u_exp/u_exp.py --outDir u_exp --u_exp 25
+python u_exp/u_exp.py --outDir u_exp --u_exp 30
+python u_exp/u_exp.py --outDir u_exp --u_exp 40
+python u_exp/u_exp.py --outDir u_exp --u_exp 50
+python u_exp/u_exp.py --outDir u_exp --u_exp 60
+python weather/weather.py --outDir weather --cloud_offset_year 0
+python weather/weather.py --outDir weather --cloud_offset_year 1
+python weather/weather.py --outDir weather --cloud_offset_year 2
+python weather/weather.py --outDir weather --cloud_offset_year 4
+python weather/weather.py --outDir weather --cloud_offset_year 6
+python weather/weather.py --outDir weather --cloud_offset_year 8
+python weather/weather.py --outDir weather --cloud_offset_year 10
+python weather/weather.py --outDir weather --cloud_offset_year 12
+python weather/weather.py --outDir weather --cloud_offset_year 14
+python weather/weather.py --outDir weather --cloud_offset_year 16
+python weather/weather.py --outDir weather --cloud_offset_year 18
+python weather/weather.py --outDir weather --cloud_offset_year 20
+python weather/weather.py --outDir weather --cloud_offset_year 30
+python weather/weather.py --outDir weather --cloud_offset_year 31
+python weather/weather.py --outDir weather --cloud_offset_year 35
+python weather/weather.py --outDir weather --cloud_offset_year 36
