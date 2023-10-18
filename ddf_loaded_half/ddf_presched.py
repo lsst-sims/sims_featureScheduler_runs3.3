@@ -1,12 +1,12 @@
 __all__ = ("generate_ddf_scheduled_obs",)
 
 import os
-
+import warnings
 import numpy as np
 
 from rubin_sim.data import get_data_dir
 from rubin_sim.scheduler.utils import scheduled_observation
-from rubin_sim.utils import calc_season, ddf_locations
+from rubin_sim.utils import calc_season, ddf_locations, survey_start_mjd
 
 
 def ddf_slopes(ddf_name, raw_obs, night_season):
@@ -78,8 +78,9 @@ def ddf_slopes(ddf_name, raw_obs, night_season):
         for season in np.unique(round_season):
             in_season = np.where(round_season == season)
             cumulative = np.cumsum(raw_obs[in_season])
-            cumulative = cumulative / cumulative.max() * season_vals[season]
-            cumulative_desired[in_season] = cumulative + np.max(cumulative_desired)
+            if cumulative.max() > 0:
+                cumulative = cumulative / cumulative.max() * season_vals[season]
+                cumulative_desired[in_season] = cumulative + np.max(cumulative_desired)
 
     if ddf_name == "COSMOS":
         # looks like COSMOS has no in-season time for 10 at the current start mjd.
@@ -267,6 +268,8 @@ def generate_ddf_scheduled_obs(
     nvis_master=[4, 5, 10, 10, 12, 9],
     filters="ugrizy",
     nsnaps=[1, 2, 2, 2, 2, 2],
+    mjd_start=None,
+    survey_length=10.
 ):
     """
 
@@ -315,6 +318,17 @@ def generate_ddf_scheduled_obs(
     ddfs = ddf_locations()
     ddf_data = np.load(data_file)
     ddf_grid = ddf_data["ddf_grid"].copy()
+
+    if mjd_start is None:
+         mjd_start = survey_start_mjd()
+
+    mjd_max = mjd_start + survey_length * 365.25
+
+    # check if our pre-computed grid is over the time range we think we are scheduling for
+    if (ddf_grid["mjd"].min() > mjd_start) | (ddf_grid["mjd"].max() < mjd_max):
+        warnings.warn("Pre-computed DDF properties don't match requested survey times")
+    in_range = np.where((ddf_grid["mjd"] >= mjd_start) & (ddf_grid["mjd"] <= mjd_max))
+    ddf_grid = ddf_grid[in_range]
 
     all_scheduled_obs = []
     for ddf_name in ["ELAISS1", "XMM_LSS", "ECDFS", "COSMOS", "EDFS_a"]:
