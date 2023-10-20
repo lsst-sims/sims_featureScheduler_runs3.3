@@ -1503,6 +1503,7 @@ def main(args):
         file_end = "const_season_" + "v3.3_"
     else:
         file_end = "const_season%i" % insert_const + "v3.3_"
+
     pattern_dict = {
         1: [True],
         2: [True, False],
@@ -1548,7 +1549,7 @@ def main(args):
         nside=nside,
         wfd_indx=wfd_indx,
         order_roll=1,
-        n_cycles=2,
+        n_cycles=4,
         insert_const=insert_const,
     )
 

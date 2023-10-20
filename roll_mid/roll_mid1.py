@@ -1499,7 +1499,10 @@ def main(args):
         fileroot = os.path.basename(sys.argv[0]).replace(".py", "") + "_"
     else:
         fileroot = dbroot + "_"
-    file_end =  "const_season%i" % insert_const +"v3.3_"
+    if insert_const is None:
+        file_end = "const_season_" + "v3.3_"
+    else:
+        file_end = "const_season%i" % insert_const + "v3.3_"
 
     pattern_dict = {
         1: [True],
