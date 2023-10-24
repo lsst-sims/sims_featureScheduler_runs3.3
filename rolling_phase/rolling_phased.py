@@ -89,11 +89,13 @@ def make_rolling_footprints_phase_shift(
     up = nslice - down * (nslice - 1)
 
     start = [1.0] * n_constant_start
+    null_start = [0.0] * n_constant_start
     # After n_cycles, just go to no-rolling for 6 years.
     end = [1.0] * n_constant_end
+    null_end = [0.0] * n_constant_end
 
     rolling = [up] + [down] * (nslice - 1)
-    null_roll = [1.0] * nslice
+    null_roll = [0.0] * nslice
 
     rolling = np.roll(rolling, order_roll).tolist()
 
@@ -111,11 +113,11 @@ def make_rolling_footprints_phase_shift(
         start + np.roll(rolling, 0).tolist() + null_roll + null_roll + end,
         start + np.roll(rolling, 1).tolist() + null_roll + null_roll + end,
 
-        start + null_roll + np.roll(rolling, 0).tolist() + null_roll + end,
-        start + null_roll + np.roll(rolling, 1).tolist() + null_roll + end,
+        null_start + null_roll + np.roll(rolling, 0).tolist() + null_roll + null_end,
+        null_start + null_roll + np.roll(rolling, 1).tolist() + null_roll + null_end,
         
-        start + null_roll + null_roll + np.roll(rolling, 0).tolist() + end,
-        start + null_roll + null_roll + np.roll(rolling, 1).tolist() + end,
+        null_start + null_roll + null_roll + np.roll(rolling, 0).tolist() + null_end,
+        null_start + null_roll + null_roll + np.roll(rolling, 1).tolist() + null_end,
     ]
     all_phase_shifts = [
         0.0,
