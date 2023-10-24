@@ -131,10 +131,10 @@ def make_rolling_footprints_phase_shift(
     ]
     pmapping = {up: "U", down: "D", 1.0: "1"}
     
-    for i in range(len(all_slopes)):
-        print("rolling footprint %d:" % i)
-        print("    phase shift: %f" % all_phase_shifts[i])
-        print("    rolling sequence: %s" % " ".join(pmapping[_v] for _v in all_slopes[i]))
+    #for i in range(len(all_slopes)):
+    #    print("rolling footprint %d:" % i)
+    #    print("    phase shift: %f" % all_phase_shifts[i])
+    #    print("    rolling sequence: %s" % " ".join(pmapping[_v] for _v in all_slopes[i]))
 
     fp_non_wfd = Footprint(mjd_start, sun_ra_start=sun_ra_start, nside=nside)
     rolling_footprints = []
