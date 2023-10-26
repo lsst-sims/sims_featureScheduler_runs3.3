@@ -12,6 +12,8 @@ mw_roll_bulge.py : only roll the bulge and not the dusty plane
 
 no_high_blob.py : move around some of the high visit bulge stuff.
 
+reweight_bulge.py : move bulge y-visits into u,g,z
 
+reweight_plane.py : in the dusty plane, few visits in u,z,y. more in r,i,g
 
 
