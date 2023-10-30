@@ -19,7 +19,7 @@
 
 ## Walltime (hours:min:sec) Do not specify a walltime substantially more than your job needs.
 
-#SBATCH --time=36:00:00
+#SBATCH --time=48:00:00
 
 ## Memory per node. It is important to specify the memory since the default memory is very small.
 
@@ -55,16 +55,16 @@ cd /gscratch/scrubbed/yoachim/sims_featureScheduler_runs3.3/mw
 ## run all the baseline commands in parallel
 module load parallel-20170722
 
-cat mw.sh | parallel -j 28
+#cat mw.sh | parallel -j 28
 
 rm maf.sh
-ls *10yrs.db | xargs -I'{}' echo "glance_dir --db '{}'" > maf.sh
+#ls *10yrs.db | xargs -I'{}' echo "glance_dir --db '{}'" > maf.sh
 ls *10yrs.db | xargs -I'{}' echo "scimaf_dir --db '{}'" >> maf.sh
 #ls *10yrs.db | xargs -I'{}' echo "scimaf_dir --limited --db '{}'" >> maf.sh
-ls *10yrs.db | xargs -I'{}' echo "ddf_dir --db '{}'" >> maf.sh
-ls *10yrs.db | xargs -I'{}' echo "metadata_dir --db '{}'" >> maf.sh
+#ls *10yrs.db | xargs -I'{}' echo "ddf_dir --db '{}'" >> maf.sh
+#ls *10yrs.db | xargs -I'{}' echo "metadata_dir --db '{}'" >> maf.sh
 
-generate_ss 
-cat ss_script.sh >> maf.sh
+#generate_ss 
+#cat ss_script.sh >> maf.sh
 
 cat maf.sh | parallel -j 28
