@@ -48,6 +48,7 @@ def make_rolling_footprints_phase_shift(
     nside=32,
     wfd_indx=None,
     phase_shift=0,
+    phase_shift_first=0,
 ):
     """
     Generate rolling footprints
@@ -66,6 +67,8 @@ def make_rolling_footprints_phase_shift(
         The phase shift in days to apply to each subsequent rolling cycle. This is 
         applied cumulatively so that the second rolling cycle gets one phase shift and 
         the third gets two phase shifts.
+    phase_shift_first : `float`
+        The phase shift in days to apply to the first rolling cycle.
     
     Returns
     -------
@@ -120,8 +123,8 @@ def make_rolling_footprints_phase_shift(
         null_start + null_roll + null_roll + np.roll(rolling, 1).tolist() + null_end,
     ]
     all_phase_shifts = [
-        0.0,
-        0.0,
+        phase_shift_first,
+        phase_shift_first,
 
         1.0 * phase_shift,
         1.0 * phase_shift,
@@ -129,7 +132,7 @@ def make_rolling_footprints_phase_shift(
         2.0 * phase_shift,
         2.0 * phase_shift,
     ]
-    pmapping = {up: "U", down: "D", 1.0: "1"}
+    pmapping = {up: "U", down: "D", 1.0: "1", 0.0: "0"}
     
     #for i in range(len(all_slopes)):
     #    print("rolling footprint %d:" % i)
@@ -1494,6 +1497,7 @@ def main(args):
     neo_elong_req = args.neo_elong_req
     neo_area_req = args.neo_area_req
     phase_shift = args.phase_shift
+    phase_shift_first = args.phase_shift_first
 
     # Be sure to also update and regenerate DDF grid save file if changing mjd_start
     mjd_start = 60796.0
@@ -1570,6 +1574,7 @@ def main(args):
         nside=nside,
         wfd_indx=wfd_indx,
         phase_shift=phase_shift,
+        phase_shift_first=phase_shift_first,
     )
 
     gaps_night_pattern = [True] + [False] * nights_off
@@ -1675,6 +1680,7 @@ if __name__ == "__main__":
     parser.add_argument("--neo_elong_req", type=float, default=45.0)
     parser.add_argument("--neo_area_req", type=float, default=0.0)
     parser.add_argument("--phase_shift", type=float, default=0.)
+    parser.add_argument("--phase_shift_first", type=float, default=0.)
 
     args = parser.parse_args()
     main(args)
