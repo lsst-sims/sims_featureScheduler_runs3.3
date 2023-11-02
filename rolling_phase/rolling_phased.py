@@ -1529,7 +1529,7 @@ def main(args):
         fileroot = os.path.basename(sys.argv[0]).replace(".py", "") + "_"
     else:
         fileroot = dbroot + "_"
-    file_end = "ps_%i_v3.3_" % phase_shift
+    file_end = "ps_%i_psf_%i_v3.3_" % (phase_shift, phase_shift_first)
 
     pattern_dict = {
         1: [True],
