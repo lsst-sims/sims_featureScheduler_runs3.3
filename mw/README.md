@@ -4,10 +4,11 @@ runs requested from: https://docs.google.com/document/d/1P4yRZLrimX9gQo2dR69rhB5
 
 
 smc_lmc.py : change the filter distribution on the LMC and SMC AND the SCP.
+
 scp_reweight.py : change filter distribution in the SCP
 
-
 mw_roll_all.py : like the baseline but include the bulge and dusty plane in rolling
+
 mw_roll_bulge.py : only roll the bulge and not the dusty plane
 
 no_high_blob.py : move around some of the high visit bulge stuff.
