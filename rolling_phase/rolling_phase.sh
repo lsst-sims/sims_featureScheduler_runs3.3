@@ -1,5 +1,1 @@
-python rolling_phased.py --phase_shift 0
-python rolling_phased.py --phase_shift 182.625
-python rolling_phased.py --phase_shift -182.625
-python rolling_phased.py --phase_shift 182.625 --phase_shift_first -91.3125
-python rolling_phased.py --phase_shift 182.625 --phase_shift_first 91.3125
+python rolling_phased.py --scenario "ps1_-91_ps2_91_ps3_273"

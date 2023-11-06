@@ -47,8 +47,7 @@ def make_rolling_footprints_phase_shift(
     sun_ra_start=3.27717639,
     nside=32,
     wfd_indx=None,
-    phase_shift=0,
-    phase_shift_first=0,
+    scenario=None,
 ):
     """
     Generate rolling footprints
@@ -63,13 +62,10 @@ def make_rolling_footprints_phase_shift(
         The RA of the sun at the start of the survey
     wfd_indx : array of ints
         The indices of the HEALpix map that are to be included in the rolling.
-    phase_shift : `float`
-        The phase shift in days to apply to each subsequent rolling cycle. This is 
-        applied cumulatively so that the second rolling cycle gets one phase shift and 
-        the third gets two phase shifts.
-    phase_shift_first : `float`
-        The phase shift in days to apply to the first rolling cycle.
-    
+    scenario : str or None
+        The scenario to run. If None, uses the default scenario of no shifts in the
+        sequences of rolling cadences.
+
     Returns
     -------
     Footprints object
@@ -81,12 +77,12 @@ def make_rolling_footprints_phase_shift(
 
     hp_footprints = fp_hp
 
-    scale=0.9
-    nslice=2
-    order_roll=1
-    n_cycles=3
-    n_constant_start=3
-    n_constant_end=6
+    scale = 0.9
+    nslice = 2
+    order_roll = 1
+    n_cycles = 3
+    n_constant_start = 3
+    n_constant_end = 6
 
     down = 1.0 - scale
     up = nslice - down * (nslice - 1)
@@ -103,7 +99,7 @@ def make_rolling_footprints_phase_shift(
     rolling = np.roll(rolling, order_roll).tolist()
 
     # we separate out the rolling cycles and slices into separate footprints
-    # so a pattern of say 
+    # so a pattern of say, e.g.,
     #  [111UDUD11111]
     # becomes
     #  [111UD1111111]
@@ -111,29 +107,65 @@ def make_rolling_footprints_phase_shift(
     #  [11111UD11111]
     #  [11111DU11111]
     # then we can apply a phase shift to the later cycles of rolling
-    
+
     all_slopes = [
         start + np.roll(rolling, 0).tolist() + null_roll + null_roll + end,
         start + np.roll(rolling, 1).tolist() + null_roll + null_roll + end,
 
         null_start + null_roll + np.roll(rolling, 0).tolist() + null_roll + null_end,
         null_start + null_roll + np.roll(rolling, 1).tolist() + null_roll + null_end,
-        
+
         null_start + null_roll + null_roll + np.roll(rolling, 0).tolist() + null_end,
         null_start + null_roll + null_roll + np.roll(rolling, 1).tolist() + null_end,
     ]
+
+    year_in_days = 365.25
+    if scenario in ["ps_0_psf_0", "ps_0"]:
+        ps_list = [0.0] * n_cycles
+    elif scenario in ["ps_-182_psf_0", "ps_-182"]:
+        ps_list = [
+            0.0,
+            -0.5 * year_in_days,
+            -1.0 * year_in_days,
+        ]
+    elif scenario in ["ps_182_psf_0", "ps_182"]:
+        ps_list = [
+            0.0,
+            0.5 * year_in_days,
+            1.0 * year_in_days,
+        ]
+    elif scenario in ["ps_182_psf_91"]:
+        ps_list = [
+            0.25 * year_in_days,
+            0.5 * year_in_days,
+            1.0 * year_in_days,
+        ]
+    elif scenario in ["ps_182_psf_-91"]:
+        ps_list = [
+            -0.25 * year_in_days,
+            0.5 * year_in_days,
+            1.0 * year_in_days,
+        ]
+    elif scenario in ["ps1_-91_ps2_91_ps3_273"]:
+        ps_list = [
+            -0.25 * year_in_days,
+            0.25 * year_in_days,
+            0.75 * year_in_days,
+        ]
+    else:
+        ps_list = [0.0] * n_cycles
+
     all_phase_shifts = [
-        phase_shift_first,
-        phase_shift_first,
+        ps_list[0],
+        ps_list[0],
 
-        1.0 * phase_shift,
-        1.0 * phase_shift,
+        ps_list[1],
+        ps_list[1],
 
-        2.0 * phase_shift,
-        2.0 * phase_shift,
+        ps_list[2],
+        ps_list[2],
     ]
-    pmapping = {up: "U", down: "D", 1.0: "1", 0.0: "0"}
-    
+    # pmapping = {up: "U", down: "D", 1.0: "1", 0.0: "0"}
     #for i in range(len(all_slopes)):
     #    print("rolling footprint %d:" % i)
     #    print("    phase shift: %f" % all_phase_shifts[i])
@@ -1496,8 +1528,7 @@ def main(args):
     neo_am = args.neo_am
     neo_elong_req = args.neo_elong_req
     neo_area_req = args.neo_area_req
-    phase_shift = args.phase_shift
-    phase_shift_first = args.phase_shift_first
+    scenario = args.scenario
 
     # Be sure to also update and regenerate DDF grid save file if changing mjd_start
     mjd_start = 60796.0
@@ -1529,7 +1560,10 @@ def main(args):
         fileroot = os.path.basename(sys.argv[0]).replace(".py", "") + "_"
     else:
         fileroot = dbroot + "_"
-    file_end = "ps_%i_psf_%i_v3.3_" % (phase_shift, phase_shift_first)
+    if scenario is not None:
+        file_end = "%s_v3.3_" % scenario
+    else:
+        file_end = "baselineclone_v3.3_"
 
     pattern_dict = {
         1: [True],
@@ -1573,8 +1607,7 @@ def main(args):
         sun_ra_start=conditions.sun_ra_start,
         nside=nside,
         wfd_indx=wfd_indx,
-        phase_shift=phase_shift,
-        phase_shift_first=phase_shift_first,
+        scenario=scenario,
     )
 
     gaps_night_pattern = [True] + [False] * nights_off
@@ -1679,8 +1712,7 @@ if __name__ == "__main__":
     parser.add_argument("--neo_am", type=float, default=2.5)
     parser.add_argument("--neo_elong_req", type=float, default=45.0)
     parser.add_argument("--neo_area_req", type=float, default=0.0)
-    parser.add_argument("--phase_shift", type=float, default=0.)
-    parser.add_argument("--phase_shift_first", type=float, default=0.)
+    parser.add_argument("--scenario", type=str, default=None)
 
     args = parser.parse_args()
     main(args)
