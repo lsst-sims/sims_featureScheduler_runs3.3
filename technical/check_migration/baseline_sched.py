@@ -8,28 +8,28 @@ import sys
 import healpy as hp
 import matplotlib.pylab as plt
 import numpy as np
-import rubin_sim
-import rubin_sim.scheduler.basis_functions as bf
-import rubin_sim.scheduler.detailers as detailers
+import rubin_scheduler
+import rubin_scheduler.scheduler.basis_functions as bf
+import rubin_scheduler.scheduler.detailers as detailers
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 from astropy.utils import iers
-from rubin_sim.scheduler import sim_runner
-from rubin_sim.scheduler.model_observatory import ModelObservatory
-from rubin_sim.scheduler.schedulers import CoreScheduler, SimpleFilterSched
-from rubin_sim.scheduler.surveys import (
+from rubin_scheduler.scheduler import sim_runner
+from rubin_scheduler.scheduler.model_observatory import ModelObservatory
+from rubin_scheduler.scheduler.schedulers import CoreScheduler, SimpleFilterSched
+from rubin_scheduler.scheduler.surveys import (
     BlobSurvey,
     GreedySurvey,
     LongGapSurvey,
     ScriptedSurvey,
     generate_ddf_scheduled_obs,
 )
-from rubin_sim.scheduler.utils import (
+from rubin_scheduler.scheduler.utils import (
     ConstantFootprint,
     EuclidOverlapFootprint,
     make_rolling_footprints,
 )
-from rubin_sim.utils import _hpid2_ra_dec
+from rubin_scheduler.utils import _hpid2_ra_dec
 
 # So things don't fail on hyak
 iers.conf.auto_download = False
@@ -1374,9 +1374,9 @@ def main(args):
 
     extra_info["file executed"] = os.path.realpath(__file__)
     try:
-        rs_path = rubin_sim.__path__[0]
+        rs_path = rubin_scheduler.__path__[0]
         hash_file = os.path.join(rs_path, "../", ".git/refs/heads/main")
-        extra_info["rubin_sim git hash"] = subprocess.check_output(["cat", hash_file])
+        extra_info["rubin_scheduler git hash"] = subprocess.check_output(["cat", hash_file])
     except subprocess.CalledProcessError:
         pass
 
