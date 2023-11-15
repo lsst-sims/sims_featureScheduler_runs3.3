@@ -99,11 +99,11 @@ def roman_info():
     # Guessing these from the notebook in same dir. 
     observing_season_mid_mjds = [61947.3, 62318.8, 62670.3, 63067.2, 63381.4, 63773.2]
 
-    result['seaons_on'] = [[val-32, val+32] for val in observing_season_mid_mjds]
+    result['seasons_on'] = [[val-32, val+32] for val in observing_season_mid_mjds]
 
     result['seasons_off'] = []
-    for i in range(len(result['seaons_on'])-1):
-        result['seasons_off'].append([result['seaons_on'][i][1]+1, result['seaons_on'][i+1][0]-1])
+    for i in range(len(result['seasons_on'])-1):
+        result['seasons_off'].append([result['seasons_on'][i][1]+1, result['seasons_on'][i+1][0]-1])
 
     return result
 
@@ -126,7 +126,7 @@ def gen_roman_on_season(nside=32, camera_ddf_rot_limit=75.):
     # Force it to delay 30 minutes
     basis_functions.append(bf.ForceDelayBasisFunction(days_delay=30./24., survey_name=survey_name))
     # Force it to be in a given observing season
-    basis_functions.append(InSeasonBasisFunction(seasons=field_info['seaons_on']))
+    basis_functions.append(InSeasonBasisFunction(seasons=field_info['seasons_on']))
     basis_functions.append(MoonDistPointRange(RA, dec))
     basis_functions.append(AirmassPointRange(RA, dec, nside=nside))
 
