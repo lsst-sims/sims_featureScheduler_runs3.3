@@ -80,7 +80,7 @@ class MoonDistPointRange(bf.BaseBasisFunction):
 
     def check_feasibility(self, conditions):
         result = False
-        moon_dist = _angular_separation(self.ra, self.dec, conditions.moonRA, conditions.moonDec)
+        moon_dist = _angular_separation(self.ra, self.dec, conditions.moon_ra, conditions.moon_dec)
         if moon_dist > self.moon_limit:
             result = True
         return result
